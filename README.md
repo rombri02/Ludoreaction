@@ -1,16 +1,69 @@
-# React + Vite
+# 🚀 Ludoreaction
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Ludoreaction** is a premium, high-impact betting dashboard designed specifically for Twitch streamers. It provides a real-time, interactive experience for managing and visualizing audience bets with stunning aesthetics and smooth animations.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Key Features
 
-## React Compiler
+- **🎮 Real-Time Betting**: Instant updates and synchronization for all betting events.
+- **💬 Twitch Integration**: Seamless connection to Twitch chat via `tmi.js` to track user participation.
+- **🎨 Premium Aesthetics**: A sleek dark mode interface with modern typography and a high-end feel.
+- **🌪️ Dynamic Animations**: Fluid transitions and visual effects powered by `Framer Motion`.
+- **📱 Responsive Design**: Optimized for various screen sizes, ensuring a great experience on any device.
+- **💾 State Persistence**: Never lose your betting data with robust local state management.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Built With
 
-## Expanding the ESLint configuration
+- **React 19** - The core UI framework.
+- **Vite** - Lightning-fast build tool and development server.
+- **Framer Motion** - For high-performance UI animations.
+- **Tailwind CSS** - For modern, utility-first styling.
+- **tmi.js** - To interact with the Twitch Messaging Interface.
+- **Lucide React** - For beautiful, consistent iconography.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/rombri02/Ludoreaction.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd Ludoreaction
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Development
+
+Run the development server:
+```bash
+npm run dev
+```
+
+### Deployment
+
+Build and deploy to GitHub Pages:
+```bash
+npm run deploy
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Built with ❤️ for the streaming community.

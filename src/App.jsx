@@ -299,7 +299,7 @@ function App() {
 
       <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-muted)', borderRadius: 'var(--radius-card)', transition: 'var(--theme-transition)' }}>
         <form onSubmit={handleAdd}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <div className="form-row" style={{ marginBottom: '16px' }}>
             <div className="input-group">
               <label><User size={12} /> USERNAME</label>
               <input required placeholder="Es: Luca" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} />
@@ -328,7 +328,7 @@ function App() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', width: '100%' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', width: '100%', flexWrap: 'wrap' }}>
             <button
               type="button"
               className={clsx('streamer-toggle', formData.isStreamer && 'active')}
@@ -372,7 +372,7 @@ function App() {
       </div>
 
       <footer style={{ marginTop: 'auto', padding: '20px 0', textAlign: 'center', opacity: 0.3, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-        Creato da <span style={{ fontWeight: 800, color: 'var(--accent-purple)' }}>rombri</span>
+        Creato da <span style={{ fontWeight: 800, color: 'var(--accent-purple)' }}>rombri02</span>
         <br />
         <span style={{ fontSize: '0.55rem', opacity: 0.8, marginTop: '8px', display: 'block' }}>
           Bug o Consigli? <a href="mailto:rombri002@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>rombri002@gmail.com</a>
