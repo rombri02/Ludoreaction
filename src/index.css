@@ -481,3 +481,22 @@ input:focus {
   opacity: 0.5;
   text-transform: uppercase;
 }
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  opacity: 0.2;
+  margin-left: 12px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  opacity: 1;
+  color: #ef4444; /* Red on hover for deletion */
+}

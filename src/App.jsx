@@ -281,8 +281,8 @@ function App() {
                 onAnimationSettled={handleAnimationSettled}
               />
 
-              <button style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.1)', marginLeft: '12px', marginTop: '4px', cursor: 'pointer' }} onClick={() => removeBet(bet.id)} className="remove-btn">
-                <Trash2 size={16} style={{ opacity: 0.3 }} />
+              <button onClick={() => removeBet(bet.id)} className="remove-btn">
+                <Trash2 size={16} />
               </button>
             </div>
           );
