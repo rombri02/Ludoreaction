@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Minus, Trash2, Search, Ticket, Hash, MessageSquare, User, Sun, Moon, Check } from 'lucide-react';
+import { Plus, Minus, Trash2, Search, Ticket, Hash, MessageSquare, User, Sun, Moon, Check, LayoutGrid, List, PlusCircle, XCircle } from 'lucide-react';
 import { calculateTotalSubs, formatRule } from './utils/SubRuleLogic';
 import clsx from 'clsx';
 
@@ -121,6 +121,8 @@ function App() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [theme, setTheme] = useState(() => localStorage.getItem('ludo-theme') || 'dark');
+  const [viewMode, setViewMode] = useState(() => localStorage.getItem('ludo-view') || 'normal');
+  const [showForm, setShowForm] = useState(() => localStorage.getItem('ludo-form') !== 'hidden');
   const [formData, setFormData] = useState({
     username: '',
     phrase: '',
@@ -135,22 +137,34 @@ function App() {
   }, [bets]);
 
   useEffect(() => {
+    localStorage.setItem('ludo-view', viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem('ludo-form', showForm ? 'visible' : 'hidden');
+  }, [showForm]);
+
+  useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('ludo-theme', theme);
   }, [theme]);
 
 
-  const handleAnimationSettled = (id, isFinishedNow = true) => {
+  const handleAnimationSettled = React.useCallback((id, isFinishedNow = true) => {
     setSettledFinishedIds(prev => {
-      const next = new Set(prev);
       if (isFinishedNow) {
+        if (prev.has(id)) return prev;
+        const next = new Set(prev);
         next.add(id);
+        return next;
       } else {
+        if (!prev.has(id)) return prev;
+        const next = new Set(prev);
         next.delete(id);
+        return next;
       }
-      return next;
     });
-  };
+  }, []);
 
   const getRandomInt = (min, max) => {
     min = Math.ceil(min);
@@ -217,13 +231,13 @@ function App() {
 
       const updatedBet = { ...b, count: newCount, rollHistory: newHistory };
       const canFinish = ['fixed', 'capped', 'threshold'].includes(updatedBet.ruleType);
-      
+
       // For types that have a completion goal, reset paid status if they fall below that goal.
       // For manual types (mult, prog, rand), the status is purely manual and won't reset on count change.
       if (canFinish && !isActuallyFinished(updatedBet)) {
         updatedBet.isPaid = false;
       }
-      
+
       return updatedBet;
     }));
   };
@@ -238,6 +252,8 @@ function App() {
   };
 
   const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  const toggleView = () => setViewMode(prev => prev === 'normal' ? 'compact' : 'normal');
+  const isCompact = viewMode === 'compact';
 
   const filteredBets = bets
     .filter(b =>
@@ -269,9 +285,17 @@ function App() {
           <Ticket size={24} style={{ marginRight: '8px' }} />
           LUDOREACTION <div className="logo-dot" />
         </div>
-        <button onClick={toggleTheme} className="theme-toggle-btn" style={{ background: 'var(--bg-pill)', border: '1px solid var(--border-muted)', color: 'var(--text-primary)', padding: '8px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}>
-          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={() => setShowForm(p => !p)} className="theme-toggle-btn" style={{ background: showForm ? 'var(--accent-green)' : 'var(--bg-pill)', border: '1px solid var(--border-muted)', color: showForm ? 'white' : 'var(--text-primary)', padding: '8px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}>
+            {showForm ? <XCircle size={20} /> : <PlusCircle size={20} />}
+          </button>
+          <button onClick={toggleView} className="theme-toggle-btn" style={{ background: isCompact ? 'var(--accent-purple)' : 'var(--bg-pill)', border: '1px solid var(--border-muted)', color: isCompact ? 'white' : 'var(--text-primary)', padding: '8px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}>
+            {isCompact ? <List size={20} /> : <LayoutGrid size={20} />}
+          </button>
+          <button onClick={toggleTheme} className="theme-toggle-btn" style={{ background: 'var(--bg-pill)', border: '1px solid var(--border-muted)', color: 'var(--text-primary)', padding: '8px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}>
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+        </div>
       </header>
 
       <div className="search-container" style={{ marginBottom: '1.5rem' }}>
@@ -279,63 +303,71 @@ function App() {
         <input className="search-input" type="text" placeholder="Cerca in Ludoreaction..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
       </div>
 
-      <div className="bet-list" style={{ marginBottom: '2.5rem' }}>
+      <div className={clsx('bet-list', isCompact && 'compact')} style={{ marginBottom: '2.5rem' }}>
         {filteredBets.map((bet) => {
           const isDone = settledFinishedIds.has(bet.id);
           const isActuallyDone = isActuallyFinished(bet);
 
           return (
-            <div key={bet.id} className={clsx('bet-card', isDone && 'finished', bet.isStreamer && 'streamer-card', bet.isPaid && 'paid')}>
-              <div className="user-info">
-                <div className="phrase" style={{ fontWeight: 800, fontSize: '0.95rem', textTransform: 'uppercase' }}>{bet.phrase}</div>
-                <div className="username" style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: '0.75rem' }}>{bet.username}</div>
+            <div key={bet.id} className={clsx('bet-card', isDone && 'finished', bet.isStreamer && 'streamer-card', bet.isPaid && 'paid', isCompact && 'compact')}>
+              <div className="card-header">
+                <div className="user-info">
+                  <div className="phrase" style={{ fontWeight: 800, fontSize: isCompact && !bet.isStreamer ? '0.7rem' : '0.95rem', textTransform: 'uppercase' }}>{bet.phrase}</div>
+                  <div className="username" style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: isCompact ? '0.55rem' : '0.75rem' }}>{bet.username}</div>
+                </div>
+
+                <AnimatedTotal
+                  bet={bet}
+                  isActuallyFinished={isActuallyDone}
+                  onAnimationSettled={handleAnimationSettled}
+                />
               </div>
-              <div className="counter-pill">
-                <button className="counter-btn minus" onClick={() => updateCount(bet.id, -1)}><Minus size={16} strokeWidth={3} /></button>
-                <span className="counter-value">{bet.count < 10 ? `0${bet.count}` : bet.count}</span>
-                <button className="counter-btn plus" onClick={() => updateCount(bet.id, 1)}><Plus size={16} strokeWidth={3} /></button>
+
+              <div className="compact-controls">
+                <div className="counter-pill">
+                  <button className="counter-btn minus" onClick={() => updateCount(bet.id, -1)}><Minus size={isCompact ? 14 : 16} strokeWidth={3} /></button>
+                  <span className="counter-value">{bet.count < 10 ? `0${bet.count}` : bet.count}</span>
+                  <button className="counter-btn plus" onClick={() => updateCount(bet.id, 1)}><Plus size={isCompact ? 14 : 16} strokeWidth={3} /></button>
+                </div>
+
+                {(() => {
+                  const currentTotalSubs = calculateTotalSubs(bet.ruleType, bet.baseN, bet.count, bet.maxF, bet.rollHistory);
+                  const isManualType = ['multiplier', 'progressive', 'range'].includes(bet.ruleType);
+
+                  if (isActuallyDone || (isManualType && currentTotalSubs > 0)) {
+                    return (
+                      <button
+                        onClick={() => togglePaid(bet.id)}
+                        className={clsx('paid-btn', bet.isPaid && 'active')}
+                        title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
+                      >
+                        <Check size={isCompact ? 14 : 16} strokeWidth={4} />
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
+
+                <button onClick={() => removeBet(bet.id)} className="remove-btn">
+                  <Trash2 size={isCompact ? 14 : 16} />
+                </button>
               </div>
-
-              <AnimatedTotal
-                bet={bet}
-                isActuallyFinished={isActuallyDone}
-                onAnimationSettled={handleAnimationSettled}
-              />
-
-              {(() => {
-                const currentTotalSubs = calculateTotalSubs(bet.ruleType, bet.baseN, bet.count, bet.maxF, bet.rollHistory);
-                const isManualType = ['multiplier', 'progressive', 'range'].includes(bet.ruleType);
-                
-                if (isActuallyDone || (isManualType && currentTotalSubs > 0)) {
-                  return (
-                    <button
-                      onClick={() => togglePaid(bet.id)}
-                      className={clsx('paid-btn', bet.isPaid && 'active')}
-                      title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
-                    >
-                      <Check size={16} strokeWidth={4} />
-                    </button>
-                  );
-                }
-                return null;
-              })()}
-
-              <button onClick={() => removeBet(bet.id)} className="remove-btn">
-                <Trash2 size={16} />
-              </button>
             </div>
           );
         })}
-        {bets.length > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem', padding: '0 8px' }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
-              Totale Ludoreaction: <b>{bets.reduce((acc, b) => acc + calculateTotalSubs(b.ruleType, b.baseN, b.count, b.maxF, b.rollHistory), 0)} SUB</b>
-            </span>
-            <button onClick={() => { if (confirm('Svuotare la Ludoreaction?')) setBets([]) }} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>Svuota Ludoreaction</button>
-          </div>
-        )}
+        {bets.length > 0 && <div className="bottom-bar-spacer" />}
       </div>
 
+      {bets.length > 0 && (
+        <div className="bottom-bar">
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+            Totale Ludoreaction: <b>{bets.reduce((acc, b) => acc + calculateTotalSubs(b.ruleType, b.baseN, b.count, b.maxF, b.rollHistory), 0)} SUB</b>
+          </span>
+          <button onClick={() => { if (confirm('Svuotare la Ludoreaction?')) setBets([]) }} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>Svuota Ludoreaction</button>
+        </div>
+      )}
+
+      {showForm && (
       <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-muted)', borderRadius: 'var(--radius-card)', transition: 'var(--theme-transition)' }}>
         <form onSubmit={handleAdd}>
           <div className="form-row" style={{ marginBottom: '16px' }}>
@@ -409,6 +441,7 @@ function App() {
           </div>
         </form>
       </div>
+      )}
 
       <footer style={{ marginTop: 'auto', padding: '20px 0', textAlign: 'center', opacity: 0.3, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
         Creato da <span style={{ fontWeight: 800, color: 'var(--accent-purple)' }}>rombri02</span>

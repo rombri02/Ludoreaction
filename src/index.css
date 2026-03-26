@@ -247,6 +247,14 @@ input:focus {
   gap: 8px;
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
 /* Animations */
 @keyframes slideIn {
   from {
@@ -273,6 +281,7 @@ input:focus {
   opacity: var(--target-opacity);
   transition: var(--transition);
   animation: slideIn 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+  overflow: visible;
 }
 
 .bet-card.streamer-card {
@@ -308,6 +317,9 @@ input:focus {
   color: #f3e8ff !important;
   text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bet-card.streamer-card .username {
@@ -315,6 +327,9 @@ input:focus {
   opacity: 0.9 !important;
   color: var(--accent-purple) !important;
   font-weight: 700 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bet-card.streamer-card .counter-value {
@@ -349,6 +364,7 @@ input:focus {
 
 .user-info {
   flex: 1;
+  min-width: 0;
 }
 
 .username {
@@ -357,6 +373,9 @@ input:focus {
   text-transform: uppercase;
   font-size: 0.95rem;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .phrase {
@@ -365,6 +384,9 @@ input:focus {
   text-transform: uppercase;
   color: var(--text-purple-muted);
   margin-top: -2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Counter Pill */
@@ -622,4 +644,150 @@ input:focus {
   .remove-btn {
     margin-left: 2px;
   }
+}
+
+/* ===================== */
+/* FIXED BOTTOM BAR      */
+/* ===================== */
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 24px;
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border-muted);
+  z-index: 50;
+  transition: var(--theme-transition);
+}
+
+[data-theme='light'] .bottom-bar {
+  background: rgba(244, 244, 245, 0.85);
+}
+
+.bottom-bar-spacer {
+  height: 48px;
+}
+
+/* ===================== */
+/* COMPACT CONTROLS      */
+/* ===================== */
+
+/* In normal mode, compact-controls acts as a transparent wrapper */
+.compact-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ===================== */
+/* COMPACT VIEW MODE     */
+/* ===================== */
+
+.bet-list.compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* Compact card: vertical layout */
+.bet-card.compact {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 6px 10px;
+  gap: 0;
+  min-height: 44px;
+  position: relative;
+  overflow: visible;
+}
+
+/* Streamer card always spans full width in compact */
+.bet-card.compact.streamer-card {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: auto;
+}
+
+.bet-card.compact.streamer-card .compact-controls {
+  opacity: 1;
+  max-height: 200px;
+  margin-top: 0;
+  padding-top: 0;
+  pointer-events: auto;
+}
+
+.bet-card.compact .card-header {
+  gap: 8px;
+}
+
+/* User info in compact mode */
+.bet-card.compact .user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Hide controls by default in compact mode */
+.bet-card.compact .compact-controls {
+  flex-wrap: wrap;
+  gap: 8px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  margin-top: 0;
+  padding-top: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.65, 0, 0.35, 1),
+              max-height 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+              margin-top 0.35s cubic-bezier(0.65, 0, 0.35, 1),
+              padding-top 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Reveal controls on hover */
+.bet-card.compact:hover .compact-controls {
+  opacity: 1;
+  max-height: 200px;
+  margin-top: 8px;
+  padding-top: 8px;
+  pointer-events: auto;
+  border-top: 1px solid var(--border-muted);
+  overflow: visible;
+}
+
+/* Compact card subtle hover glow */
+.bet-card.compact:hover {
+  transform: scale(1.02);
+  z-index: 5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Compact card total/counter adjustments */
+.bet-card.compact .counter-pill {
+  transform: scale(0.85);
+}
+
+.bet-card.compact .total-value {
+  font-size: 0.85rem;
+}
+
+.bet-card.compact .rule-small {
+  font-size: 0.45rem;
+}
+
+.bet-card.compact .remove-btn {
+  margin-left: auto;
+}
+
+/* Compact card paid-btn sizing */
+.bet-card.compact .paid-btn {
+  width: 24px;
+  height: 24px;
 }
