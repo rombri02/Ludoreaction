@@ -216,10 +216,14 @@ function App() {
       }
 
       const updatedBet = { ...b, count: newCount, rollHistory: newHistory };
-      if (!isActuallyFinished(updatedBet)) {
+      const canFinish = ['fixed', 'capped', 'threshold'].includes(updatedBet.ruleType);
+      
+      // For types that have a completion goal, reset paid status if they fall below that goal.
+      // For manual types (mult, prog, rand), the status is purely manual and won't reset on count change.
+      if (canFinish && !isActuallyFinished(updatedBet)) {
         updatedBet.isPaid = false;
       }
-
+      
       return updatedBet;
     }));
   };
@@ -298,15 +302,23 @@ function App() {
                 onAnimationSettled={handleAnimationSettled}
               />
 
-              {isActuallyDone && (
-                <button
-                  onClick={() => togglePaid(bet.id)}
-                  className={clsx('paid-btn', bet.isPaid && 'active')}
-                  title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
-                >
-                  <Check size={16} strokeWidth={4} />
-                </button>
-              )}
+              {(() => {
+                const currentTotalSubs = calculateTotalSubs(bet.ruleType, bet.baseN, bet.count, bet.maxF, bet.rollHistory);
+                const isManualType = ['multiplier', 'progressive', 'range'].includes(bet.ruleType);
+                
+                if (isActuallyDone || (isManualType && currentTotalSubs > 0)) {
+                  return (
+                    <button
+                      onClick={() => togglePaid(bet.id)}
+                      className={clsx('paid-btn', bet.isPaid && 'active')}
+                      title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
+                    >
+                      <Check size={16} strokeWidth={4} />
+                    </button>
+                  );
+                }
+                return null;
+              })()}
 
               <button onClick={() => removeBet(bet.id)} className="remove-btn">
                 <Trash2 size={16} />
