@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, Minus, Trash2, Search, Ticket, Hash, MessageSquare, User, Sun, Moon } from 'lucide-react';
+import { Plus, Minus, Trash2, Search, Ticket, Hash, MessageSquare, User, Sun, Moon, Check } from 'lucide-react';
 import { calculateTotalSubs, formatRule } from './utils/SubRuleLogic';
 import clsx from 'clsx';
 
@@ -175,7 +175,8 @@ function App() {
       baseN: nVal,
       maxF: fVal,
       count: 0,
-      rollHistory: []
+      rollHistory: [],
+      isPaid: false
     };
 
     if (bet.isStreamer) {
@@ -188,6 +189,10 @@ function App() {
     }
 
     setFormData({ ...formData, username: '', phrase: '', isStreamer: false });
+  };
+
+  const togglePaid = (id) => {
+    setBets(bets.map(b => b.id === id ? { ...b, isPaid: !b.isPaid } : b));
   };
 
   const updateCount = (id, delta) => {
@@ -210,7 +215,12 @@ function App() {
         }
       }
 
-      return { ...b, count: newCount, rollHistory: newHistory };
+      const updatedBet = { ...b, count: newCount, rollHistory: newHistory };
+      if (!isActuallyFinished(updatedBet)) {
+        updatedBet.isPaid = false;
+      }
+
+      return updatedBet;
     }));
   };
 
@@ -231,13 +241,20 @@ function App() {
       b.phrase.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
+      // 1. Streamer always first
       if (a.isStreamer && !b.isStreamer) return -1;
       if (!a.isStreamer && b.isStreamer) return 1;
 
+      // 2. Paid bets always at the absolute bottom
+      if (a.isPaid && !b.isPaid) return 1;
+      if (!a.isPaid && b.isPaid) return -1;
+
+      // 3. Finished (done) bets go after active bets
       const aDone = settledFinishedIds.has(a.id);
       const bDone = settledFinishedIds.has(b.id);
       if (aDone && !bDone) return 1;
       if (!aDone && bDone) return -1;
+
       return 0;
     });
 
@@ -264,7 +281,7 @@ function App() {
           const isActuallyDone = isActuallyFinished(bet);
 
           return (
-            <div key={bet.id} className={clsx('bet-card', isDone && 'finished', bet.isStreamer && 'streamer-card')}>
+            <div key={bet.id} className={clsx('bet-card', isDone && 'finished', bet.isStreamer && 'streamer-card', bet.isPaid && 'paid')}>
               <div className="user-info">
                 <div className="phrase" style={{ fontWeight: 800, fontSize: '0.95rem', textTransform: 'uppercase' }}>{bet.phrase}</div>
                 <div className="username" style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: '0.75rem' }}>{bet.username}</div>
@@ -280,6 +297,16 @@ function App() {
                 isActuallyFinished={isActuallyDone}
                 onAnimationSettled={handleAnimationSettled}
               />
+
+              {isActuallyDone && (
+                <button
+                  onClick={() => togglePaid(bet.id)}
+                  className={clsx('paid-btn', bet.isPaid && 'active')}
+                  title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
+                >
+                  <Check size={16} strokeWidth={4} />
+                </button>
+              )}
 
               <button onClick={() => removeBet(bet.id)} className="remove-btn">
                 <Trash2 size={16} />

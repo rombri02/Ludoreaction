@@ -267,7 +267,8 @@ input:focus {
   border-radius: var(--radius-card);
   padding: 8px 14px;
   display: flex;
-  align-items: center; /* Changed from flex-start to center for better alignment when thin */
+  align-items: center;
+  /* Changed from flex-start to center for better alignment when thin */
   gap: 12px;
   opacity: var(--target-opacity);
   transition: var(--transition);
@@ -277,20 +278,29 @@ input:focus {
 .bet-card.streamer-card {
   border: 2px solid transparent;
   background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
-              linear-gradient(45deg, var(--accent-purple), #ec4899, var(--accent-purple)) border-box;
+    linear-gradient(45deg, var(--accent-purple), #ec4899, var(--accent-purple)) border-box;
   background-size: 200% 200%;
   animation: slideIn 0.8s cubic-bezier(0.65, 0, 0.35, 1), borderRotate 4s linear infinite;
   padding: 16px 20px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  /* Fix clipping for floating badges */
   box-shadow: 0 0 30px rgba(168, 85, 247, 0.25);
   margin-bottom: 4px;
 }
 
 @keyframes borderRotate {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .bet-card.streamer-card .phrase {
@@ -318,9 +328,22 @@ input:focus {
 }
 
 .bet-card.finished {
-  --target-opacity: 0.3;
-  filter: grayscale(0.8);
+  --target-opacity: 0.6;
+  filter: grayscale(0.5);
   transform: scale(0.98);
+}
+
+.bet-card.paid {
+  --target-opacity: 0.45; /* Slightly more visible card when paid */
+  border-color: rgba(168, 85, 247, 0.4); /* Purple border for paid cards */
+}
+
+.bet-card.paid .user-info,
+.bet-card.paid .counter-pill,
+.bet-card.paid .total-container {
+  filter: grayscale(0.85);
+  /* Greyscale only for content, not for the whole card */
+  opacity: 0.6;
 }
 
 
@@ -441,14 +464,15 @@ input:focus {
   pointer-events: none;
   z-index: 100;
   white-space: nowrap;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* Larger variant for RAND extraction */
 .slot-badge.large {
   font-size: 1.5rem;
   padding: 8px 20px;
-  right: -80px;
+  right: -60px;
+  /* Brought slightly inward */
   top: -20px;
 }
 
@@ -457,23 +481,60 @@ input:focus {
 }
 
 @keyframes totalBump {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.3);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes floatUpFade {
-  0% { transform: translateY(20px) scale(0.3); opacity: 0; filter: blur(10px); }
-  10% { transform: translateY(0) scale(1.25); opacity: 1; filter: blur(0); }
-  15% { transform: translateY(0) scale(1); opacity: 1; }
-  85% { transform: translateY(-30px) scale(1); opacity: 1; }
-  100% { transform: translateY(-50px) scale(0.8); opacity: 0; }
+  0% {
+    transform: translateY(20px) scale(0.3);
+    opacity: 0;
+    filter: blur(10px);
+  }
+
+  10% {
+    transform: translateY(0) scale(1.25);
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  15% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  85% {
+    transform: translateY(-30px) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(-50px) scale(0.8);
+    opacity: 0;
+  }
 }
 
 @keyframes slotShake {
-  0% { transform: translateY(-1px) scale(1.1); }
-  50% { transform: translateY(1px) scale(1.1); }
-  100% { transform: translateY(-1px) scale(1.1); }
+  0% {
+    transform: translateY(-1px) scale(1.1);
+  }
+
+  50% {
+    transform: translateY(1px) scale(1.1);
+  }
+
+  100% {
+    transform: translateY(-1px) scale(1.1);
+  }
 }
 
 .rule-small {
@@ -494,9 +555,71 @@ input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10;
+}
+
+/* Enhanced badge for streamer */
+.bet-card.streamer-card .slot-badge {
+  background: linear-gradient(135deg, #fff, var(--accent-purple)) !important;
+  color: #000 !important;
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.8), 0 0 100px rgba(168, 85, 247, 0.4) !important;
+  border: 2px solid white;
 }
 
 .remove-btn:hover {
   opacity: 1;
-  color: #ef4444; /* Red on hover for deletion */
+  color: #ef4444;
+  /* Red on hover for deletion */
+}
+
+/* Paid Button */
+.paid-btn {
+  background: var(--bg-pill);
+  border: 1px solid var(--border-muted);
+  color: var(--text-secondary);
+  width: 28px; /* Reduced from 32px */
+  height: 28px; /* Reduced from 32px */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  opacity: 0.4;
+  margin-left: 4px;
+}
+
+.paid-btn:hover {
+  opacity: 1;
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.paid-btn.active {
+  background: var(--accent-purple);
+  border-color: var(--accent-purple);
+  color: white;
+  opacity: 1 !important;
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+  transform: scale(1); /* No extra scale */
+  animation: pulseOnce 0.4s ease-out;
+}
+
+@keyframes pulseOnce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* Responsive adjustment for extra button */
+@media (max-width: 400px) {
+  .bet-card {
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .paid-btn,
+  .remove-btn {
+    margin-left: 2px;
+  }
 }
