@@ -283,7 +283,7 @@ function App() {
       <header className="header" style={{ marginBottom: '2rem' }}>
         <div className="logo" style={{ color: 'var(--accent-green)' }}>
           <Ticket size={24} style={{ marginRight: '8px' }} />
-          LUDOREACTION <div className="logo-dot" />
+          LUDOREACTION <span style={{ fontSize: '0.6rem', opacity: 0.5, marginLeft: '4px' }}>v2.1</span> <div className="logo-dot" />
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={() => setShowForm(p => !p)} className="theme-toggle-btn" style={{ background: showForm ? 'var(--accent-green)' : 'var(--bg-pill)', border: '1px solid var(--border-muted)', color: showForm ? 'white' : 'var(--text-primary)', padding: '8px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'var(--transition)' }}>

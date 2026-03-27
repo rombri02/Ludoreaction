@@ -1,3 +1,4 @@
+console.log('LUDOREACTION VERSION: 2.1 - ' + new Date().toISOString());
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
