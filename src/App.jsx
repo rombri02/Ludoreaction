@@ -298,77 +298,8 @@ function App() {
         </div>
       </header>
 
-      <div className="search-container" style={{ marginBottom: '1.5rem' }}>
-        <Search className="search-icon" size={18} />
-        <input className="search-input" type="text" placeholder="Cerca in Ludoreaction..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-      </div>
-
-      <div className={clsx('bet-list', isCompact && 'compact')} style={{ marginBottom: '2.5rem' }}>
-        {filteredBets.map((bet) => {
-          const isDone = settledFinishedIds.has(bet.id);
-          const isActuallyDone = isActuallyFinished(bet);
-
-          return (
-            <div key={bet.id} className={clsx('bet-card', isDone && 'finished', bet.isStreamer && 'streamer-card', bet.isPaid && 'paid', isCompact && 'compact')}>
-              <div className="card-header">
-                <div className="user-info">
-                  <div className="phrase" style={{ fontWeight: 800, fontSize: isCompact && !bet.isStreamer ? '0.7rem' : '0.95rem', textTransform: 'uppercase' }}>{bet.phrase}</div>
-                  <div className="username" style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: isCompact ? '0.55rem' : '0.75rem' }}>{bet.username}</div>
-                </div>
-
-                <AnimatedTotal
-                  bet={bet}
-                  isActuallyFinished={isActuallyDone}
-                  onAnimationSettled={handleAnimationSettled}
-                />
-              </div>
-
-              <div className="compact-controls">
-                <div className="counter-pill">
-                  <button className="counter-btn minus" onClick={() => updateCount(bet.id, -1)}><Minus size={isCompact ? 14 : 16} strokeWidth={3} /></button>
-                  <span className="counter-value">{bet.count < 10 ? `0${bet.count}` : bet.count}</span>
-                  <button className="counter-btn plus" onClick={() => updateCount(bet.id, 1)}><Plus size={isCompact ? 14 : 16} strokeWidth={3} /></button>
-                </div>
-
-                {(() => {
-                  const currentTotalSubs = calculateTotalSubs(bet.ruleType, bet.baseN, bet.count, bet.maxF, bet.rollHistory);
-                  const isManualType = ['multiplier', 'progressive', 'range'].includes(bet.ruleType);
-
-                  if (isActuallyDone || (isManualType && currentTotalSubs > 0)) {
-                    return (
-                      <button
-                        onClick={() => togglePaid(bet.id)}
-                        className={clsx('paid-btn', bet.isPaid && 'active')}
-                        title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
-                      >
-                        <Check size={isCompact ? 14 : 16} strokeWidth={4} />
-                      </button>
-                    );
-                  }
-                  return null;
-                })()}
-
-                <button onClick={() => removeBet(bet.id)} className="remove-btn">
-                  <Trash2 size={isCompact ? 14 : 16} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-        {bets.length > 0 && <div className="bottom-bar-spacer" />}
-      </div>
-
-      {bets.length > 0 && (
-        <div className="bottom-bar">
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
-            Totale Ludoreaction: <b>{bets.reduce((acc, b) => acc + calculateTotalSubs(b.ruleType, b.baseN, b.count, b.maxF, b.rollHistory), 0)} SUB</b>
-          </span>
-          <button onClick={() => { if (confirm('Svuotare la Ludoreaction?')) setBets([]) }} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>Svuota Ludoreaction</button>
-        </div>
-      )}
-
       {showForm && (
-      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-muted)', borderRadius: 'var(--radius-card)', transition: 'var(--theme-transition)' }}>
+      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '1.5rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-muted)', borderRadius: 'var(--radius-card)', transition: 'var(--theme-transition)' }}>
         <form onSubmit={handleAdd}>
           <div className="form-row" style={{ marginBottom: '16px' }}>
             <div className="input-group">
@@ -443,13 +374,79 @@ function App() {
       </div>
       )}
 
-      <footer style={{ marginTop: 'auto', padding: '20px 0', textAlign: 'center', opacity: 0.3, fontSize: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-        Creato da <span style={{ fontWeight: 800, color: 'var(--accent-purple)' }}>rombri02</span>
-        <br />
-        <span style={{ fontSize: '0.55rem', opacity: 0.8, marginTop: '8px', display: 'block' }}>
-          Bug o Consigli? <a href="mailto:rombri002@gmail.com" style={{ color: 'inherit', textDecoration: 'underline' }}>rombri002@gmail.com</a>
-        </span>
-      </footer>
+      <div className="search-container" style={{ marginBottom: '1.5rem' }}>
+        <Search className="search-icon" size={18} />
+        <input className="search-input" type="text" placeholder="Cerca in Ludoreaction..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
+      </div>
+
+      {bets.length > 0 && (
+        <div className="bottom-bar">
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+            Totale Ludoreaction: <b>{(() => {
+              const streamerSubs = bets.filter(b => b.isStreamer).reduce((acc, b) => acc + calculateTotalSubs(b.ruleType, b.baseN, b.count, b.maxF, b.rollHistory), 0);
+              const otherSubs = bets.filter(b => !b.isStreamer).reduce((acc, b) => acc + calculateTotalSubs(b.ruleType, b.baseN, b.count, b.maxF, b.rollHistory), 0);
+              return otherSubs - streamerSubs;
+            })()} SUB</b>
+          </span>
+          <button onClick={() => { if (confirm('Svuotare la Ludoreaction?')) setBets([]) }} style={{ background: 'transparent', border: 'none', color: '#ef4444', fontSize: '0.65rem', textTransform: 'uppercase', fontWeight: 700, cursor: 'pointer' }}>Svuota Ludoreaction</button>
+        </div>
+      )}
+
+      <div className={clsx('bet-list', isCompact && 'compact')} style={{ marginBottom: '2.5rem' }}>
+        {filteredBets.map((bet) => {
+          const isDone = settledFinishedIds.has(bet.id);
+          const isActuallyDone = isActuallyFinished(bet);
+
+          return (
+            <div key={bet.id} className={clsx('bet-card', isDone && 'finished', bet.isStreamer && 'streamer-card', bet.isPaid && 'paid', isCompact && 'compact')}>
+              <div className="card-header">
+                <div className="user-info">
+                  <div className="phrase" style={{ fontWeight: 800, fontSize: isCompact && !bet.isStreamer ? '0.7rem' : '0.95rem', textTransform: 'uppercase' }}>{bet.phrase}</div>
+                  <div className="username" style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: isCompact ? '0.55rem' : '0.75rem' }}>{bet.username}</div>
+                </div>
+
+                <AnimatedTotal
+                  bet={bet}
+                  isActuallyFinished={isActuallyDone}
+                  onAnimationSettled={handleAnimationSettled}
+                />
+              </div>
+
+              <div className="compact-controls">
+                <div className="counter-pill">
+                  <button className="counter-btn minus" onClick={() => updateCount(bet.id, -1)}><Minus size={isCompact ? 14 : 16} strokeWidth={3} /></button>
+                  <span className="counter-value">{bet.count < 10 ? `0${bet.count}` : bet.count}</span>
+                  <button className="counter-btn plus" onClick={() => updateCount(bet.id, 1)}><Plus size={isCompact ? 14 : 16} strokeWidth={3} /></button>
+                </div>
+
+                {(() => {
+                  const currentTotalSubs = calculateTotalSubs(bet.ruleType, bet.baseN, bet.count, bet.maxF, bet.rollHistory);
+                  const isManualType = ['multiplier', 'progressive', 'range'].includes(bet.ruleType);
+
+                  if (isActuallyDone || (isManualType && currentTotalSubs > 0)) {
+                    return (
+                      <button
+                        onClick={() => togglePaid(bet.id)}
+                        className={clsx('paid-btn', bet.isPaid && 'active')}
+                        title={bet.isPaid ? "Segna come NON pagato" : "Segna come pagato"}
+                      >
+                        <Check size={isCompact ? 14 : 16} strokeWidth={4} />
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
+
+                <button onClick={() => removeBet(bet.id)} className="remove-btn">
+                  <Trash2 size={isCompact ? 14 : 16} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+        {bets.length > 0 && <div className="bottom-bar-spacer" />}
+      </div>
+
     </div>
   );
 }
